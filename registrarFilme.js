@@ -1,41 +1,61 @@
-// faça uma função para registrar um filme no banco de dados
-// a função deve receber um objeto com os seguintes atributos: nome, ano, diretor, duração, atores
-// a função deve retornar o id do filme registrado
-// o id do filme deve ser gerado automaticamente
-// o id do filme deve ser um número inteiro sequencial, começando em 1
-// o id do filme deve ser único
-// o banco de dados deve ser um array de objetos
+const url = 'http://localhost:3000/Diretor';
 
-function registrarFilme(filme) {
-    filme.id = filmes.length + 1;
-    filmes.push(filme);
-    return filme.id;
+
+async function insereDado(e) {
+    e.preventDefault(); 
+    
+    const input = document.querySelector("#nome");
+    const nome = input.value.trim(); 
+    
+    if (!nome) {
+        alert("O nome do diretor é obrigatório.");
+        return;
+    }
+
+    try {
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({
+                nome: input.value
+            })
+        });
+
+        const data = await response.json();
+        console.log('Diretor registrado com sucesso:', data);
+        input.value = 'nome'; 
+    } catch (error) {
+        console.error('Erro ao inserir o diretor:', error);
+    }
 }
 
-const filmes = [];
+async function carregaDados(e) {
+    e.preventDefault(); 
 
-const filme = {
-    id: 1,
-    nome: 'Pulp Fiction',
-    ano: 1994,
-    diretor: 'Quentin Tarantino', 
-    duracao: 154,
-    atores: ['John Travolta', 'Samuel L. Jackson', 'Uma Thurman'],
-    sinopse: 'Um filme muito bom',
-    genero: 'Crime'
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(data);
+
+        const geradorDiretor = document.getElementById('diretorid');
+       
+        geradorDiretor.innerHTML = data.map(item => {
+            return `
+                <div class="diretorid">
+                    <h2>${item.nomeDiretor}</h2>
+                </div>
+            `;
+        }).join(''); 
+    } catch (error) {
+        console.error('Erro ao carregar os dados:', error);
+    }
 }
 
-const id = registrarFilme(filme);
-console.log(id);
-// 1
 
-const filme2 = {
-    id: 2,
-    nome: 'O Senhor dos Aneis: A Sociedade do Anel',
-    ano: 2001,
-    diretor: 'Peter Jackson',   
-    duracao: 201,
-    atores: ['Elijah Wood', 'Ian McKellen', 'Viggo Mortensen'],
-    sinopse: 'Um filme muito bom',
-    genero: 'Aventura'
-}
+
+
+document.querySelector('#form-diretor').addEventListener('submit', insereDado);
+document.getElementById('load').addEventListener('click', carregaDados);
